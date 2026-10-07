@@ -1,0 +1,22 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: repolens-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-repolens}
+      POSTGRES_USER: ${POSTGRES_USER:-repolens}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-repolens}
+    ports:
+      - "${POSTGRES_PORT:-55432}:5432"
+    volumes:
+      - repolens-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  repolens-postgres-data:

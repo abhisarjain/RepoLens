@@ -1,0 +1,54 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+backend/target/
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+.mvn/timing.properties
+!**/.mvn/wrapper/maven-wrapper.jar
+
+# Node / Vite
+frontend/node_modules/
+frontend/dist/
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+coverage/
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.classpath
+.project
+.settings/
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Local runtime data
+*.pid
+*.seed
+*.pid.lock
+*.sqlite
+*.sqlite3
+uploads/
+
+# Test and tooling output
+.nyc_output/
+test-results/
+playwright-report/

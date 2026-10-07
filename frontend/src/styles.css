@@ -1,0 +1,305 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  background: #090b10;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  background: #090b10;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  color: #eefaff;
+  background: rgba(33, 184, 230, 0.28);
+}
+
+.bg-grid-dots {
+  background-image: radial-gradient(rgba(145, 160, 179, 0.13) 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+}
+
+.scrollbar-thin {
+  scrollbar-color: rgba(148, 163, 184, 0.18) transparent;
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  border-radius: 20px;
+  background: rgba(148, 163, 184, 0.17);
+}
+
+.explorer-workspace {
+  display: grid;
+  grid-template-columns: 258px minmax(0, 1fr) 360px;
+}
+
+.explorer-panel {
+  position: relative;
+  z-index: 30;
+  min-width: 0;
+  min-height: 0;
+  background: #0d1017;
+}
+
+.explorer-panel--left {
+  border-right: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.explorer-panel--right {
+  border-left: 1px solid rgba(255, 255, 255, 0.075);
+}
+
+.mobile-panel-backdrop,
+.mobile-panel-close {
+  display: none;
+}
+
+.mobile-graph-action {
+  display: inline-flex;
+  height: 36px;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0 12px;
+  color: #94a3b8;
+  background: rgba(13, 16, 23, 0.9);
+  font-size: 11px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.26);
+  backdrop-filter: blur(12px);
+}
+
+.mobile-graph-action:hover {
+  color: #f8fafc;
+  border-color: rgba(94, 210, 245, 0.25);
+}
+
+.react-flow__node-readmeNode {
+  width: auto;
+  border: 0;
+  background: transparent;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.react-flow__node-readmeNode:focus,
+.react-flow__node-readmeNode:focus-visible {
+  outline: none;
+}
+
+.react-flow__edge-path {
+  stroke: rgba(126, 147, 169, 0.25);
+  stroke-width: 1.2;
+}
+
+.repolens-edge--context .react-flow__edge-path {
+  stroke: rgba(126, 147, 169, 0.14);
+  stroke-dasharray: 4 7;
+}
+
+.react-flow__minimap-mask {
+  fill: rgba(6, 8, 12, 0.68);
+}
+
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane:active {
+  cursor: grabbing;
+}
+
+.readme-node::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  opacity: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(94, 210, 245, 0.1), transparent 58%);
+  transition: opacity 180ms ease;
+  pointer-events: none;
+}
+
+.readme-node:hover::before,
+.readme-node--current::before {
+  opacity: 1;
+}
+
+.markdown-inline > :first-child {
+  margin-top: 0;
+}
+
+.markdown-inline > :last-child {
+  margin-bottom: 0;
+}
+
+.markdown-inline strong {
+  color: #e2e8f0;
+  font-weight: 600;
+}
+
+.markdown-inline em {
+  color: #cbd5e1;
+}
+
+.markdown-inline del {
+  color: #64748b;
+}
+
+.markdown-inline ul,
+.markdown-inline ol {
+  margin: 0.55rem 0;
+  padding-left: 1.25rem;
+}
+
+.markdown-inline ul {
+  list-style: disc;
+}
+
+.markdown-inline ol {
+  list-style: decimal;
+}
+
+.markdown-inline li {
+  margin: 0.3rem 0;
+}
+
+.readme-table-markdown table {
+  width: 100%;
+  min-width: 360px;
+  border-collapse: collapse;
+}
+
+.readme-table-markdown th,
+.readme-table-markdown td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.6rem 0.7rem;
+}
+
+.readme-table-markdown th {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 1279px) {
+  .explorer-workspace {
+    grid-template-columns: 220px minmax(0, 1fr) 315px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .explorer-workspace {
+    display: block;
+  }
+
+  .explorer-workspace > section {
+    height: 100%;
+  }
+
+  .explorer-panel {
+    position: fixed;
+    z-index: 80;
+    top: 0;
+    bottom: 0;
+    width: min(88vw, 370px);
+    box-shadow: 0 0 70px rgba(0, 0, 0, 0.52);
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .explorer-panel--left {
+    left: 0;
+    transform: translateX(-105%);
+  }
+
+  .explorer-panel--right {
+    right: 0;
+    transform: translateX(105%);
+  }
+
+  .explorer-panel.is-mobile-open {
+    transform: translateX(0);
+  }
+
+  .mobile-panel-backdrop {
+    position: fixed;
+    z-index: 70;
+    inset: 0;
+    display: block;
+    border: 0;
+    background: rgba(0, 0, 0, 0.58);
+    backdrop-filter: blur(2px);
+  }
+
+  .mobile-panel-close {
+    display: grid;
+    height: 28px;
+    width: 28px;
+    place-items: center;
+    border-radius: 7px;
+    color: #64748b;
+  }
+
+  .mobile-panel-close:hover {
+    color: #e2e8f0;
+    background: rgba(255, 255, 255, 0.05);
+  }
+}
+
+@media (max-width: 639px) {
+  .react-flow__minimap {
+    display: none;
+  }
+
+  .readme-node {
+    width: 190px;
+  }
+
+  .readme-node--current {
+    width: 204px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
