@@ -2,7 +2,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Clock3, GitBranch, LoaderCircle, Sparkles, TerminalSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import demoMarkdown from "../../../demo/README.md?raw";
+import demoMarkdown from "../assets/demo-readme.md?raw";
 import { ReadmeDropzone } from "../components/upload/ReadmeDropzone";
 import { RepoLensLogo } from "../components/ui/RepoLensLogo";
 import { localProjectStore } from "../services/localProjectStore";
