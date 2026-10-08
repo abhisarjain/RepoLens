@@ -12,6 +12,7 @@ import { createFocusLayout } from "../../utils/graphLayout";
 import { GraphControls } from "./GraphControls";
 
 interface FocusGraphProps {
+  roots: ReadmeNode[];
   current: ReadmeNode;
   parent: ReadmeNode | null;
   onNavigate: (nodeId: string) => void;
@@ -36,20 +37,36 @@ function useElementSize() {
   return { ref, size };
 }
 
-function FocusGraphCanvas({ current, parent, onNavigate, nodeTypes }: FocusGraphProps) {
+function FocusGraphCanvas({ roots, current, parent, onNavigate, nodeTypes }: FocusGraphProps) {
   const { ref, size } = useElementSize();
   const { fitView } = useReactFlow();
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set());
+  const collapsed = collapsedIds.has(current.id);
   const layout = useMemo(
-    () => createFocusLayout(current, parent, size),
-    [current, parent, size],
+    () => createFocusLayout(current, parent, size, roots, collapsed),
+    [collapsed, current, parent, roots, size],
   );
   const layoutNodes = useMemo(
     () =>
       layout.nodes.map((node) => ({
         ...node,
-        data: { ...node.data, onActivate: () => onNavigate(node.id) },
+        data: {
+          ...node.data,
+          onActivate: () => {
+            if (node.id !== current.id || !current.children.length) {
+              onNavigate(node.id);
+              return;
+            }
+            setCollapsedIds((value) => {
+              const next = new Set(value);
+              if (next.has(current.id)) next.delete(current.id);
+              else next.add(current.id);
+              return next;
+            });
+          },
+        },
       })),
-    [layout.nodes, onNavigate],
+    [current.children.length, current.id, layout.nodes, onNavigate],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutNodes);
 
@@ -62,7 +79,7 @@ function FocusGraphCanvas({ current, parent, onNavigate, nodeTypes }: FocusGraph
       void fitView({ padding: 0.15, duration: 360, maxZoom: 1 });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [current.id, fitView, nodes.length]);
+  }, [collapsed, current.id, fitView, nodes.length]);
 
   return (
     <div ref={ref} className="absolute inset-0">

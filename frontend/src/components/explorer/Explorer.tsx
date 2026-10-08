@@ -84,10 +84,14 @@ export function Explorer({ project, onReplace, replacing }: ExplorerProps) {
 
   const graphNavigate = useCallback(
     (nodeId: string) => {
-      if (nodeId === selectedId) return;
-      navigate(nodeId);
+      if (mode === "full") {
+        setSelectedId(nodeId);
+        setMobilePanel(null);
+        return;
+      }
+      if (nodeId !== selectedId) navigate(nodeId);
     },
-    [navigate, selectedId],
+    [mode, navigate, selectedId],
   );
 
   return (

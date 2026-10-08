@@ -12,11 +12,3 @@ export interface Project extends ProjectSummary {
   rawMarkdown?: string;
   document: ReadmeDocument;
 }
-
-export interface ApiErrorBody {
-  message?: string;
-  error?: string;
-  detail?: string;
-  fieldErrors?: Record<string, string>;
-  errors?: Array<{ field?: string; message?: string; defaultMessage?: string }>;
-}

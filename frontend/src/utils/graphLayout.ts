@@ -8,6 +8,7 @@ export interface GraphNodeData extends Record<string, unknown> {
   childCount: number;
   role: "current" | "child" | "parent" | "tree";
   selected: boolean;
+  expanded?: boolean;
 }
 
 export type ReadmeFlowNode = Node<GraphNodeData, "readmeNode">;
@@ -43,17 +44,21 @@ export function createFocusLayout(
   current: ReadmeNode,
   parent: ReadmeNode | null,
   viewport: { width: number; height: number },
+  roots: ReadmeNode[] = [current],
+  collapsed = false,
 ): { nodes: ReadmeFlowNode[]; edges: Edge[] } {
   const width = Math.max(viewport.width, 640);
   const height = Math.max(viewport.height, 480);
   const center = { x: width / 2 - 112, y: height / 2 - 56 };
-  const count = current.children.length;
+  const visibleChildren = collapsed ? [] : current.children;
+  const count = visibleChildren.length;
   const baseRadius = Math.max(245, Math.min(width, height) * 0.36);
   const availableAngle = parent ? (Math.PI * 5) / 3 : Math.PI * 2;
 
   const nodes: ReadmeFlowNode[] = [
     toGraphNode(current, "current", true, center),
   ];
+  nodes[0].data.expanded = current.children.length > 0 && !collapsed;
   const edges: Edge[] = [];
 
   let childIndex = 0;
@@ -77,7 +82,7 @@ export function createFocusLayout(
       : -Math.PI / 2 + (ringIndex % 2 === 1 ? angleStep / 2 : 0);
 
     for (let slot = 0; slot < ringCount; slot += 1) {
-      const child = current.children[childIndex];
+      const child = visibleChildren[childIndex];
       const angle = startAngle + angleStep * slot;
       const xRadius = radius * 1.08;
       nodes.push(
@@ -116,12 +121,29 @@ export function createFocusLayout(
     });
   }
 
+  const visibleIds = new Set(nodes.map((node) => node.id));
+  const independentRoots = roots.filter((root) => !visibleIds.has(root.id));
+  if (independentRoots.length) {
+    const outerRadius = baseRadius + Math.max(1, ringIndex) * FOCUS_RING_GAP;
+    const peerY = center.y - outerRadius - 130;
+    const peerGap = FULL_NODE_WIDTH + 58;
+    independentRoots.forEach((root, index) => {
+      const peer = toGraphNode(root, "tree", false, {
+        x: center.x + (index - (independentRoots.length - 1) / 2) * peerGap,
+        y: peerY,
+      });
+      peer.data.expanded = false;
+      nodes.push(peer);
+    });
+  }
+
   return { nodes, edges };
 }
 
 export function createFullGraphLayout(
   roots: ReadmeNode[],
   selectedId: string | null,
+  collapsedIds: ReadonlySet<string> = new Set(),
 ): { nodes: ReadmeFlowNode[]; edges: Edge[] } {
   const graph = new dagre.graphlib.Graph();
   graph.setDefaultEdgeLabel(() => ({}));
@@ -139,6 +161,7 @@ export function createFullGraphLayout(
   const visit = (node: ReadmeNode) => {
     sourceNodes.push(node);
     graph.setNode(node.id, { width: FULL_NODE_WIDTH, height: FULL_NODE_HEIGHT });
+    if (collapsedIds.has(node.id)) return;
     node.children.forEach((child) => {
       graph.setEdge(node.id, child.id);
       edges.push({
@@ -156,10 +179,12 @@ export function createFullGraphLayout(
 
   const nodes = sourceNodes.map((node) => {
     const position = graph.node(node.id) as { x: number; y: number };
-    return toGraphNode(node, "tree", node.id === selectedId, {
+    const graphNode = toGraphNode(node, "tree", node.id === selectedId, {
       x: position.x - FULL_NODE_WIDTH / 2,
       y: position.y - FULL_NODE_HEIGHT / 2,
     });
+    graphNode.data.expanded = node.children.length > 0 && !collapsedIds.has(node.id);
+    return graphNode;
   });
 
   return { nodes, edges };

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Explorer } from "../components/explorer/Explorer";
 import { RepoLensLogo } from "../components/ui/RepoLensLogo";
-import { projectApi } from "../services/projectApi";
+import { localProjectStore } from "../services/localProjectStore";
 import type { Project } from "../types/project";
 
 export function ExplorerPage() {
@@ -14,7 +14,7 @@ export function ExplorerPage() {
   const [replacing, setReplacing] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(() => {
     if (!/^\d+$/.test(id)) {
       setError("That project link is not valid.");
       setLoading(false);
@@ -22,17 +22,14 @@ export function ExplorerPage() {
     }
     setLoading(true);
     setError(null);
-    try {
-      setProject(await projectApi.getProject(id));
-    } catch (loadError) {
-      setError(loadError instanceof Error ? loadError.message : "Could not load this project.");
-    } finally {
-      setLoading(false);
-    }
+    const storedProject = localProjectStore.getProject(id);
+    setProject(storedProject);
+    setError(storedProject ? null : "This map lived only in browser memory and was cleared by a refresh. Upload the README again.");
+    setLoading(false);
   }, [id]);
 
   useEffect(() => {
-    void load();
+    load();
   }, [load]);
 
   const replace = async (file: File) => {
@@ -44,7 +41,7 @@ export function ExplorerPage() {
     setReplacing(true);
     setNotice(null);
     try {
-      setProject(await projectApi.updateProjectReadme(id, file));
+      setProject(await localProjectStore.updateProjectReadme(id, file));
       setNotice("README replaced and map rebuilt.");
       window.setTimeout(() => setNotice(null), 2600);
     } catch (replaceError) {
@@ -80,8 +77,8 @@ export function ExplorerPage() {
             <Link to="/" className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/10 px-3 text-xs text-slate-300 hover:bg-white/[0.04]">
               <ArrowLeft size={13} /> Home
             </Link>
-            <button type="button" onClick={() => void load()} className="inline-flex h-9 items-center gap-2 rounded-lg border border-lens-400/25 bg-lens-400/[0.07] px-3 text-xs text-lens-300 hover:bg-lens-400/[0.11]">
-              <RefreshCw size={13} /> Try again
+            <button type="button" onClick={load} className="inline-flex h-9 items-center gap-2 rounded-lg border border-lens-400/25 bg-lens-400/[0.07] px-3 text-xs text-lens-300 hover:bg-lens-400/[0.11]">
+              <RefreshCw size={13} /> Check session
             </button>
           </div>
         </div>

@@ -38,6 +38,7 @@ export function ReadmeGraph({ mode, roots, current, parent, onNavigate }: Readme
     <ReactFlowProvider>
       {mode === "focus" ? (
         <FocusGraph
+          roots={roots}
           current={current}
           parent={parent}
           onNavigate={onNavigate}

@@ -1,5 +1,7 @@
 # RepoLens
 
+> **Current mode:** RepoLens runs entirely in the browser and does not require the backend. Uploaded README files are parsed locally and kept only in memory, so refreshing the page clears the current map.
+
 RepoLens turns the heading hierarchy already present in a Markdown README into an interactive node world. Upload a `.md` or `.markdown` file, move through its headings in Focus mode, inspect the complete hierarchy in Full Map mode, search its original content, and return later through its persisted project ID.
 
 RepoLens is deliberately structural: it does not use AI, summarize text, classify headings, or invent relationships. Heading text stays unchanged, heading depth defines the tree, and each node shows only the content owned by that heading.

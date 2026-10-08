@@ -1,6 +1,6 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { motion, useReducedMotion } from "framer-motion";
-import { CornerDownLeft, GitBranch } from "lucide-react";
+import { ChevronDown, ChevronRight, CornerDownLeft, GitBranch } from "lucide-react";
 import type { ReadmeFlowNode } from "../../utils/graphLayout";
 
 export function ReadmeGraphNode({ data }: NodeProps<ReadmeFlowNode>) {
@@ -27,7 +27,7 @@ export function ReadmeGraphNode({ data }: NodeProps<ReadmeFlowNode>) {
       }`}
       role="button"
       tabIndex={0}
-      aria-label={`${data.label}, heading level ${data.level}${data.childCount ? `, ${data.childCount} branches` : ""}`}
+      aria-label={`${data.label}, heading level ${data.level}${data.childCount ? `, ${data.childCount} branches${data.role === "tree" ? data.expanded ? ", expanded" : ", collapsed" : ""}` : ""}`}
       onClick={(event) => {
         event.stopPropagation();
         activate?.();
@@ -49,7 +49,10 @@ export function ReadmeGraphNode({ data }: NodeProps<ReadmeFlowNode>) {
           <span className="flex items-center gap-1 text-amber-300/80"><CornerDownLeft size={10} /> Parent</span>
         ) : data.childCount ? (
           <span className="flex items-center gap-1 text-lens-300/65">
-            <GitBranch size={10} /> {data.childCount}
+            {data.role === "tree" || isCurrent ? (
+              data.expanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />
+            ) : <GitBranch size={10} />}
+            {data.childCount}
           </span>
         ) : (
           <span>Leaf</span>

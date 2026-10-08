@@ -2,9 +2,10 @@ import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, Clock3, GitBranch, LoaderCircle, Sparkles, TerminalSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import demoMarkdown from "../../../demo/README.md?raw";
 import { ReadmeDropzone } from "../components/upload/ReadmeDropzone";
 import { RepoLensLogo } from "../components/ui/RepoLensLogo";
-import { projectApi } from "../services/projectApi";
+import { localProjectStore } from "../services/localProjectStore";
 import type { ProjectSummary } from "../types/project";
 
 function MapMotif() {
@@ -54,24 +55,13 @@ export function HomePage() {
   const [recent, setRecent] = useState<ProjectSummary[]>([]);
 
   useEffect(() => {
-    let active = true;
-    projectApi
-      .getProjects()
-      .then((projects) => {
-        if (active) setRecent(projects.slice(0, 4));
-      })
-      .catch(() => {
-        // A stopped local backend should not obscure the primary upload action.
-      });
-    return () => {
-      active = false;
-    };
+    setRecent(localProjectStore.getProjects().slice(0, 4));
   }, []);
 
   const upload = async (file: File) => {
     setUploading(true);
     try {
-      const project = await projectApi.createProject(file);
+      const project = await localProjectStore.createProject(file);
       navigate(`/project/${project.id}`);
     } finally {
       setUploading(false);
@@ -82,7 +72,7 @@ export function HomePage() {
     setDemoLoading(true);
     setDemoError(null);
     try {
-      const project = await projectApi.createDemoProject();
+      const project = localProjectStore.createProjectFromMarkdown("README.md", demoMarkdown);
       navigate(`/project/${project.id}`);
     } catch (error) {
       setDemoError(error instanceof Error ? error.message : "Could not create the demo project.");
@@ -116,6 +106,9 @@ export function HomePage() {
             </h1>
             <p className="mt-6 max-w-[590px] text-[15px] leading-7 text-slate-400 sm:text-base">
               RepoLens transforms the heading hierarchy you wrote into a navigable node world. No summaries, no categories, no invented relationships.
+            </p>
+            <p className="mt-3 max-w-[590px] text-xs leading-5 text-emerald-300/70">
+              Processed entirely in your browser. Your map stays only until this page is refreshed.
             </p>
             <div className="mt-7 flex flex-wrap gap-2">
               {["Exact heading text", "Deterministic search", "No AI"].map((item) => (
@@ -161,7 +154,7 @@ export function HomePage() {
             {recent.length ? (
               <div className="mt-8 border-t border-white/[0.07] pt-5">
                 <div className="mb-2.5 flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-slate-600">
-                  <Clock3 size={11} /> Recent maps
+                  <Clock3 size={11} /> This session
                 </div>
                 <div className="space-y-1">
                   {recent.map((project) => (

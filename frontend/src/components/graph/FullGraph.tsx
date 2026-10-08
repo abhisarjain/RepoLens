@@ -7,7 +7,7 @@ import {
   useNodesState,
   type NodeTypes,
 } from "@xyflow/react";
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { ReadmeNode } from "../../types/readme";
 import { createFullGraphLayout } from "../../utils/graphLayout";
 import { GraphControls } from "./GraphControls";
@@ -21,17 +21,46 @@ interface FullGraphProps {
 
 export function FullGraph({ roots, selectedId, onNavigate, nodeTypes }: FullGraphProps) {
   const { fitView } = useReactFlow();
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    setCollapsedIds(new Set());
+  }, [roots]);
   const layout = useMemo(
-    () => createFullGraphLayout(roots, selectedId),
-    [roots, selectedId],
+    () => createFullGraphLayout(roots, selectedId, collapsedIds),
+    [roots, selectedId, collapsedIds],
   );
+  const sourceById = useMemo(() => {
+    const map = new Map<string, ReadmeNode>();
+    const visit = (nodes: ReadmeNode[]) => nodes.forEach((node) => {
+      map.set(node.id, node);
+      visit(node.children);
+    });
+    visit(roots);
+    return map;
+  }, [roots]);
+  const activate = useCallback((node: ReadmeNode) => {
+    onNavigate(node.id);
+    if (!node.children.length) return;
+    setCollapsedIds((current) => {
+      const next = new Set(current);
+      if (next.has(node.id)) next.delete(node.id);
+      else next.add(node.id);
+      return next;
+    });
+  }, [onNavigate]);
   const layoutNodes = useMemo(
     () =>
       layout.nodes.map((node) => ({
         ...node,
-        data: { ...node.data, onActivate: () => onNavigate(node.id) },
+        data: {
+          ...node.data,
+          onActivate: () => {
+            const source = sourceById.get(node.id);
+            if (source) activate(source);
+          },
+        },
       })),
-    [layout.nodes, onNavigate],
+    [activate, layout.nodes, sourceById],
   );
   const [nodes, setNodes, onNodesChange] = useNodesState(layoutNodes);
 
@@ -44,7 +73,7 @@ export function FullGraph({ roots, selectedId, onNavigate, nodeTypes }: FullGrap
       void fitView({ padding: 0.12, duration: 360, maxZoom: 1 });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [fitView, roots]);
+  }, [collapsedIds, fitView, roots]);
 
   return (
     <ReactFlow
